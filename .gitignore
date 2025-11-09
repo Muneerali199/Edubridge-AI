@@ -62,3 +62,6 @@ temp/
 # OS specific
 Thumbs.db
 desktop.ini
+
+# Local Netlify folder
+.netlify

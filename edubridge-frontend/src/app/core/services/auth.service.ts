@@ -23,16 +23,21 @@ export class AuthService {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly isBrowser = isPlatformBrowser(this.platformId);
 
-  private currentUserSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
-  public currentUser$ = this.currentUserSubject.asObservable();
+  private currentUserSubject!: BehaviorSubject<User | null>;
+  public currentUser$!: Observable<User | null>;
 
   // Signal for reactive components
-  public isAuthenticated = signal(this.hasValidToken());
+  public isAuthenticated = signal(false);
 
   constructor(
     private http: HttpClient,
     private router: Router
-  ) {}
+  ) {
+    // Initialize after dependency injection
+    this.currentUserSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
+    this.currentUser$ = this.currentUserSubject.asObservable();
+    this.isAuthenticated.set(this.hasValidToken());
+  }
 
   /**
    * Register a new user

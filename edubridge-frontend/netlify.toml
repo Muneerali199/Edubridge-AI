@@ -4,8 +4,8 @@
   # Base directory for the build
   base = "edubridge-frontend"
 
-  # Build command
-  command = "npm ci --legacy-peer-deps && npm run build"
+  # Build command (disable SSR for Netlify)
+  command = "npm ci --legacy-peer-deps && ng build --configuration production --output-mode static"
 
   # Publish directory (relative to base)
   publish = "dist/edubridge-frontend/browser"
@@ -75,7 +75,7 @@
 
 # Context-specific settings
 [context.production]
-  command = "npm ci --legacy-peer-deps && npm run build"
+  command = "npm ci --legacy-peer-deps && ng build --configuration production --output-mode static"
 
 [context.deploy-preview]
   command = "npm ci --legacy-peer-deps && npm run build"
