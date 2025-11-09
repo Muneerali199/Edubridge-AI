@@ -5,7 +5,7 @@
   base = "edubridge-frontend"
 
   # Build command (client-side only, no SSR)
-  command = "npm install --legacy-peer-deps && npm run build -- --configuration production"
+  command = "npm install --legacy-peer-deps && npm run build"
 
   # Publish directory (relative to base)
   publish = "dist/edubridge-frontend/browser"
@@ -67,10 +67,10 @@
 
 # Context-specific settings
 [context.production]
-  command = "npm install --legacy-peer-deps && npm run build -- --configuration production"
+  command = "npm install --legacy-peer-deps && npm run build"
 
 [context.deploy-preview]
-  command = "npm install --legacy-peer-deps && npm run build -- --configuration production"
+  command = "npm install --legacy-peer-deps && npm run build"
 
 [context.branch-deploy]
-  command = "npm install --legacy-peer-deps && npm run build -- --configuration production"
+  command = "npm install --legacy-peer-deps && npm run build"
