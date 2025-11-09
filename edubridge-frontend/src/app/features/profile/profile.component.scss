@@ -1,0 +1,151 @@
+.profile-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.profile-card {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 16px 0;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.profile-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    color: #667eea;
+}
+
+.loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    p {
+        margin-top: 20px;
+        color: #666;
+        font-size: 16px;
+    }
+}
+
+.profile-form {
+    padding: 24px 0;
+}
+
+.name-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.form-field {
+    width: 100%;
+    &.full-width {
+        grid-column: 1 / -1;
+    }
+}
+
+.account-info {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    .label {
+        font-size: 12px;
+        color: #666;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .value {
+        font-size: 14px;
+        color: #1a1a1a;
+        font-weight: 600;
+        &.active {
+            color: #4caf50;
+        }
+        &.verified {
+            color: #667eea;
+        }
+    }
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #e0e0e0;
+    button {
+        min-width: 140px;
+    }
+}
+
+
+/* Mobile Responsive */
+
+@media (max-width: 768px) {
+    .profile-container {
+        margin: 20px auto;
+        padding: 0 16px;
+    }
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        button {
+            width: 100%;
+        }
+    }
+    .name-row {
+        grid-template-columns: 1fr;
+    }
+    .account-info {
+        grid-template-columns: 1fr;
+    }
+    .actions {
+        button {
+            width: 100%;
+        }
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-container {
+        padding: 0 8px;
+    }
+    .profile-icon {
+        font-size: 36px;
+        width: 36px;
+        height: 36px;
+    }
+    .header-left {
+        gap: 12px;
+    }
+}

@@ -1,0 +1,102 @@
+<div class="profile-container">
+    <mat-card class="profile-card">
+        <mat-card-header>
+            <div class="header-content">
+                <div class="header-left">
+                    <mat-icon class="profile-icon">account_circle</mat-icon>
+                    <div>
+                        <mat-card-title>My Profile</mat-card-title>
+                        <mat-card-subtitle>Manage your personal information</mat-card-subtitle>
+                    </div>
+                </div>
+                <button mat-raised-button [color]="editing ? 'warn' : 'primary'" (click)="toggleEdit()" [disabled]="loading">
+          <mat-icon>{{ editing ? 'close' : 'edit' }}</mat-icon>
+          {{ editing ? 'Cancel' : 'Edit Profile' }}
+        </button>
+            </div>
+        </mat-card-header>
+
+        <mat-card-content>
+            @if (loading && !profile) {
+            <div class="loading-state">
+                <mat-spinner diameter="50"></mat-spinner>
+                <p>Loading profile...</p>
+            </div>
+            } @else if (profile) {
+            <form [formGroup]="profileForm" class="profile-form">
+                <!-- Name Fields -->
+                <div class="name-row">
+                    <mat-form-field appearance="outline" class="form-field">
+                        <mat-label>First Name</mat-label>
+                        <input matInput formControlName="firstName" placeholder="Enter first name">
+                        <mat-icon matPrefix>person</mat-icon>
+                        @if (profileForm.get('firstName')?.invalid && profileForm.get('firstName')?.touched) {
+                        <mat-error>{{ getErrorMessage('firstName') }}</mat-error>
+                        }
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline" class="form-field">
+                        <mat-label>Last Name</mat-label>
+                        <input matInput formControlName="lastName" placeholder="Enter last name">
+                        <mat-icon matPrefix>person_outline</mat-icon>
+                        @if (profileForm.get('lastName')?.invalid && profileForm.get('lastName')?.touched) {
+                        <mat-error>{{ getErrorMessage('lastName') }}</mat-error>
+                        }
+                    </mat-form-field>
+                </div>
+
+                <!-- Email (Read-only) -->
+                <mat-form-field appearance="outline" class="form-field full-width">
+                    <mat-label>Email</mat-label>
+                    <input matInput [value]="profile.email" disabled readonly>
+                    <mat-icon matPrefix>email</mat-icon>
+                    <mat-hint>Email cannot be changed</mat-hint>
+                </mat-form-field>
+
+                <!-- Phone -->
+                <mat-form-field appearance="outline" class="form-field full-width">
+                    <mat-label>Phone Number</mat-label>
+                    <input matInput formControlName="phone" placeholder="Enter phone number" type="tel">
+                    <mat-icon matPrefix>phone</mat-icon>
+                    @if (profileForm.get('phone')?.invalid && profileForm.get('phone')?.touched) {
+                    <mat-error>{{ getErrorMessage('phone') }}</mat-error>
+                    }
+                </mat-form-field>
+
+                <!-- Account Info -->
+                <div class="account-info">
+                    <div class="info-item">
+                        <span class="label">Role:</span>
+                        <span class="value">{{ profile.role }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Account Status:</span>
+                        <span class="value" [class.active]="profile.isActive">
+                {{ profile.isActive ? 'Active' : 'Inactive' }}
+              </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Email Verified:</span>
+                        <span class="value" [class.verified]="profile.isVerified">
+                {{ profile.isVerified ? 'Yes' : 'No' }}
+              </span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Member Since:</span>
+                        <span class="value">{{ profile.createdAt | date: 'medium' }}</span>
+                    </div>
+                </div>
+
+                @if (editing) {
+                <div class="actions">
+                    <button mat-raised-button color="primary" type="button" (click)="saveProfile()" [disabled]="profileForm.invalid || loading">
+                <mat-icon>save</mat-icon>
+                Save Changes
+              </button>
+                </div>
+                }
+            </form>
+            }
+        </mat-card-content>
+    </mat-card>
+</div>
