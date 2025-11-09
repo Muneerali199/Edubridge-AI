@@ -4,8 +4,8 @@
   # Base directory for the build
   base = "edubridge-frontend"
 
-  # Build command (disable SSR for Netlify)
-  command = "npm ci --legacy-peer-deps && ng build --configuration production --output-mode static"
+  # Build command (client-side only, no SSR)
+  command = "npm install --legacy-peer-deps && npm run build -- --configuration production"
 
   # Publish directory (relative to base)
   publish = "dist/edubridge-frontend/browser"
@@ -65,24 +65,12 @@
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"
 
-# Optimize images
-[[plugins]]
-  package = "@netlify/plugin-lighthouse"
-
-# Build plugins (optional - uncomment if needed)
-# [[plugins]]
-#   package = "netlify-plugin-checklinks"
-
 # Context-specific settings
 [context.production]
-  command = "npm ci --legacy-peer-deps && ng build --configuration production --output-mode static"
+  command = "npm install --legacy-peer-deps && npm run build -- --configuration production"
 
 [context.deploy-preview]
-  command = "npm ci --legacy-peer-deps && npm run build"
+  command = "npm install --legacy-peer-deps && npm run build -- --configuration production"
 
 [context.branch-deploy]
-  command = "npm ci --legacy-peer-deps && npm run build"
-
-# Development context
-[context.dev]
-  command = "npm ci --legacy-peer-deps && npm run build"
+  command = "npm install --legacy-peer-deps && npm run build -- --configuration production"
