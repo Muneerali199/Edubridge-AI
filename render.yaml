@@ -1,0 +1,54 @@
+services:
+  # PostgreSQL Database
+  - type: pserv
+    name: edubridge-db
+    env: docker
+    plan: free
+    region: oregon
+    
+  # Auth Service
+  - type: web
+    name: edubridge-auth
+    env: java
+    region: oregon
+    plan: free
+    buildCommand: cd auth-service && mvn clean package -DskipTests
+    startCommand: cd auth-service && java -Dserver.port=$PORT -Dspring.profiles.active=prod -jar target/auth-service-0.1.0-SNAPSHOT.jar
+    healthCheckPath: /auth/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: edubridge-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRATION
+        value: 3600000
+      - key: JWT_REFRESH_EXPIRATION
+        value: 604800000
+        
+  # Course Service
+  - type: web
+    name: edubridge-courses
+    env: java
+    region: oregon
+    plan: free
+    buildCommand: cd course-service && mvn clean package -DskipTests
+    startCommand: cd course-service && java -Dserver.port=$PORT -Dspring.profiles.active=prod -jar target/course-service-0.1.0-SNAPSHOT.jar
+    healthCheckPath: /api/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: SPRING_DATASOURCE_URL
+        fromDatabase:
+          name: edubridge-db
+          property: connectionString
+
+databases:
+  - name: edubridge-db
+    databaseName: edubridge
+    user: edubridge_user
+    plan: free
+    region: oregon
