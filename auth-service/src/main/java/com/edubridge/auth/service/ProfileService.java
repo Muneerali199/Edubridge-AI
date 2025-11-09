@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.UUID;
 
 /**
  * Service for user profile management
@@ -26,7 +27,7 @@ public class ProfileService {
      * Get user profile
      */
     @Transactional(readOnly = true)
-    public UserProfileResponse getUserProfile(Long userId) {
+    public UserProfileResponse getUserProfile(UUID userId) {
         log.info("Fetching profile for user ID: {}", userId);
         
         User user = userRepository.findById(userId)
@@ -43,7 +44,7 @@ public class ProfileService {
      * Update user profile (email cannot be changed)
      */
     @Transactional
-    public UserProfileResponse updateProfile(Long userId, UpdateProfileRequest request) {
+    public UserProfileResponse updateProfile(UUID userId, UpdateProfileRequest request) {
         log.info("Updating profile for user ID: {}", userId);
         
         User user = userRepository.findById(userId)

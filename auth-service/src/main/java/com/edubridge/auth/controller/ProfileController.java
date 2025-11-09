@@ -14,6 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 /**
  * REST controller for user profile management
  */
@@ -30,7 +32,7 @@ public class ProfileController {
     @GetMapping
     @Operation(summary = "Get user profile", description = "Get current user's profile information")
     public ResponseEntity<ApiResponse<UserProfileResponse>> getProfile(Authentication authentication) {
-        Long userId = Long.parseLong(authentication.getName());
+        UUID userId = UUID.fromString(authentication.getName());
         log.info("Fetching profile for user ID: {}", userId);
         
         UserProfileResponse profile = profileService.getUserProfile(userId);
@@ -43,7 +45,7 @@ public class ProfileController {
     public ResponseEntity<ApiResponse<UserProfileResponse>> updateProfile(
             Authentication authentication,
             @Valid @RequestBody UpdateProfileRequest request) {
-        Long userId = Long.parseLong(authentication.getName());
+        UUID userId = UUID.fromString(authentication.getName());
         log.info("Updating profile for user ID: {}", userId);
         
         UserProfileResponse profile = profileService.updateProfile(userId, request);
