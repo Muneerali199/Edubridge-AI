@@ -1,0 +1,678 @@
+openapi: 3.0.3
+info:
+  title: EduBridge API
+  description: |
+    EduBridge AI-powered education platform REST API.
+    
+    ## Authentication
+    Most endpoints require JWT authentication. Include the token in the Authorization header:
+    ```
+    Authorization: Bearer <your_jwt_token>
+    ```
+  version: 0.1.0
+  contact:
+    name: EduBridge Team
+    email: api@edubridge.com
+  license:
+    name: Proprietary
+    url: https://edubridge.com/license
+
+servers:
+  - url: http://localhost:8080/api
+    description: Development server
+  - url: https://api.edubridge.com/api
+    description: Production server
+
+tags:
+  - name: Authentication
+    description: User registration, login, and token management
+  - name: Users
+    description: User profile management
+  - name: Courses
+    description: Course and content management
+  - name: Assessment
+    description: Quizzes, tests, and adaptive assessments
+  - name: AI
+    description: AI-powered content generation and tutoring
+  - name: Analytics
+    description: Progress tracking and reporting
+
+security:
+  - bearerAuth: []
+
+paths:
+  # ========== Authentication Endpoints ==========
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      operationId: register
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: User already exists
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      operationId: login
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      operationId: refreshToken
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ========== User Endpoints ==========
+  /users/{userId}:
+    get:
+      tags:
+        - Users
+      summary: Get user profile
+      operationId: getUserById
+      parameters:
+        - $ref: '#/components/parameters/UserIdParam'
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      tags:
+        - Users
+      summary: Update user profile
+      operationId: updateUser
+      parameters:
+        - $ref: '#/components/parameters/UserIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========== Course Endpoints ==========
+  /courses:
+    get:
+      tags:
+        - Courses
+      summary: List all courses
+      operationId: listCourses
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/SizeParam'
+        - name: subject
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Courses retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseListResponse'
+
+    post:
+      tags:
+        - Courses
+      summary: Create a new course
+      operationId: createCourse
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCourseRequest'
+      responses:
+        '201':
+          description: Course created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+
+  /courses/{courseId}:
+    get:
+      tags:
+        - Courses
+      summary: Get course details
+      operationId: getCourseById
+      parameters:
+        - $ref: '#/components/parameters/CourseIdParam'
+      responses:
+        '200':
+          description: Course found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ========== Assessment Endpoints ==========
+  /assessments/start:
+    post:
+      tags:
+        - Assessment
+      summary: Start a new assessment session
+      operationId: startAssessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StartAssessmentRequest'
+      responses:
+        '201':
+          description: Assessment started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentSession'
+
+  /assessments/{sessionId}/answer:
+    post:
+      tags:
+        - Assessment
+      summary: Submit an answer
+      operationId: submitAnswer
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitAnswerRequest'
+      responses:
+        '200':
+          description: Answer submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnswerFeedback'
+
+  # ========== AI Endpoints ==========
+  /ai/generate/practice:
+    post:
+      tags:
+        - AI
+      summary: Generate practice questions using AI
+      operationId: generatePractice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeneratePracticeRequest'
+      responses:
+        '200':
+          description: Practice questions generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PracticeQuestionsResponse'
+
+  /ai/explain:
+    post:
+      tags:
+        - AI
+      summary: Get AI explanation for a concept
+      operationId: getExplanation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExplanationRequest'
+      responses:
+        '200':
+          description: Explanation generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExplanationResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    UserIdParam:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    
+    CourseIdParam:
+      name: courseId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        default: 0
+        minimum: 0
+    
+    SizeParam:
+      name: size
+      in: query
+      schema:
+        type: integer
+        default: 20
+        minimum: 1
+        maximum: 100
+
+  schemas:
+    # Authentication
+    RegisterRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+        - role
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 255
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          pattern: '^\+?[1-9]\d{1,14}$'
+        password:
+          type: string
+          format: password
+          minLength: 8
+        role:
+          $ref: '#/components/schemas/UserRole'
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    AuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            accessToken:
+              type: string
+            refreshToken:
+              type: string
+            expiresIn:
+              type: integer
+            user:
+              $ref: '#/components/schemas/UserProfile'
+
+    # User
+    UserRole:
+      type: string
+      enum:
+        - STUDENT
+        - TEACHER
+        - ADMIN
+        - GUARDIAN
+        - CONTENT_CREATOR
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+        isActive:
+          type: boolean
+        isVerified:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+
+    # Course
+    Course:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        subject:
+          type: string
+        description:
+          type: string
+        createdBy:
+          type: string
+          format: uuid
+        createdAt:
+          type: string
+          format: date-time
+
+    CreateCourseRequest:
+      type: object
+      required:
+        - title
+        - subject
+      properties:
+        title:
+          type: string
+        subject:
+          type: string
+        description:
+          type: string
+
+    CourseListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            courses:
+              type: array
+              items:
+                $ref: '#/components/schemas/Course'
+            total:
+              type: integer
+            page:
+              type: integer
+            size:
+              type: integer
+
+    # Assessment
+    StartAssessmentRequest:
+      type: object
+      required:
+        - grade
+        - subject
+      properties:
+        grade:
+          type: integer
+          minimum: 1
+          maximum: 12
+        subject:
+          type: string
+
+    AssessmentSession:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          format: uuid
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Question'
+
+    Question:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        questionText:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        difficultyLevel:
+          type: string
+          enum:
+            - VERY_EASY
+            - EASY
+            - MEDIUM
+            - HARD
+            - VERY_HARD
+
+    SubmitAnswerRequest:
+      type: object
+      required:
+        - questionId
+        - answer
+      properties:
+        questionId:
+          type: string
+          format: uuid
+        answer:
+          type: string
+
+    AnswerFeedback:
+      type: object
+      properties:
+        correct:
+          type: boolean
+        explanation:
+          type: string
+        nextQuestion:
+          $ref: '#/components/schemas/Question'
+
+    # AI
+    GeneratePracticeRequest:
+      type: object
+      required:
+        - topic
+        - difficulty
+      properties:
+        topic:
+          type: string
+        difficulty:
+          type: string
+        count:
+          type: integer
+          default: 5
+          minimum: 1
+          maximum: 20
+        language:
+          type: string
+          default: en
+
+    PracticeQuestionsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            questions:
+              type: array
+              items:
+                $ref: '#/components/schemas/Question'
+
+    ExplanationRequest:
+      type: object
+      required:
+        - question
+        - context
+      properties:
+        question:
+          type: string
+        studentAnswer:
+          type: string
+        context:
+          type: string
+
+    ExplanationResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            explanation:
+              type: string
+            hints:
+              type: array
+              items:
+                type: string
+
+    # Common
+    ApiError:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        message:
+          type: string
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            field:
+              type: string
+            details:
+              type: object
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
