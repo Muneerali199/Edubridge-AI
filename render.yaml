@@ -1,20 +1,13 @@
 services:
-  # PostgreSQL Database
-  - type: pserv
-    name: edubridge-db
-    env: docker
-    plan: free
-    region: oregon
-    
   # Auth Service
   - type: web
     name: edubridge-auth
-    env: java
+    runtime: docker
     region: oregon
     plan: free
-    buildCommand: cd auth-service && mvn clean package -DskipTests
-    startCommand: cd auth-service && java -Dserver.port=$PORT -Dspring.profiles.active=prod -jar target/auth-service-0.1.0-SNAPSHOT.jar
-    healthCheckPath: /auth/health
+    branch: main
+    dockerContext: .
+    dockerfilePath: ./auth-service/Dockerfile
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
@@ -32,12 +25,12 @@ services:
   # Course Service
   - type: web
     name: edubridge-courses
-    env: java
+    runtime: docker
     region: oregon
     plan: free
-    buildCommand: cd course-service && mvn clean package -DskipTests
-    startCommand: cd course-service && java -Dserver.port=$PORT -Dspring.profiles.active=prod -jar target/course-service-0.1.0-SNAPSHOT.jar
-    healthCheckPath: /api/health
+    branch: main
+    dockerContext: .
+    dockerfilePath: ./course-service/Dockerfile
     envVars:
       - key: SPRING_PROFILES_ACTIVE
         value: prod
