@@ -23,6 +23,7 @@ import { MatMenuModule } from '@angular/material/menu';
 })
 export class NavbarComponent {
   isLoggedIn = signal(false);
+  mobileMenuOpen = false;
 
   constructor(private router: Router) {
     // Check if user is logged in
@@ -30,9 +31,25 @@ export class NavbarComponent {
     this.isLoggedIn.set(!!token);
   }
 
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+    // Prevent body scroll when menu is open
+    if (this.mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
+    document.body.style.overflow = '';
+  }
+
   logout(): void {
     localStorage.removeItem('auth_token');
     this.isLoggedIn.set(false);
+    this.closeMobileMenu();
     this.router.navigate(['/']);
   }
 }

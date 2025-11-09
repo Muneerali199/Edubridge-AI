@@ -7,56 +7,132 @@
             <span class="brand-tag">AI Learning</span>
         </div>
 
-        <!-- Navigation Links -->
-        <nav class="nav-links">
+        <!-- Mobile Menu Toggle -->
+        <button mat-icon-button class="mobile-menu-btn" (click)="toggleMobileMenu()">
+            <mat-icon>{{ mobileMenuOpen ? 'close' : 'menu' }}</mat-icon>
+        </button>
+
+        <!-- Desktop Navigation -->
+        <nav class="nav-links desktop-nav">
             <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
                 <mat-icon>home</mat-icon>
-                Home
+                <span>Home</span>
             </a>
             <a mat-button routerLink="/courses" routerLinkActive="active">
                 <mat-icon>library_books</mat-icon>
-                Courses
+                <span>Courses</span>
             </a>
             <a mat-button routerLink="/instructors" routerLinkActive="active">
                 <mat-icon>people</mat-icon>
-                Instructors
+                <span>Instructors</span>
+            </a>
+            <a mat-button routerLink="/about">
+                <mat-icon>info</mat-icon>
+                <span>About</span>
+            </a>
+            <a mat-button routerLink="/contact">
+                <mat-icon>email</mat-icon>
+                <span>Contact</span>
             </a>
         </nav>
 
-        <!-- Actions -->
-        <div class="actions">
+        <!-- Desktop Actions -->
+        <div class="actions desktop-actions">
             @if (!isLoggedIn()) {
-            <a mat-button routerLink="/auth/login">
+            <a mat-button routerLink="/auth/login" class="login-btn">
                 <mat-icon>login</mat-icon>
-                Login
+                <span>Login</span>
             </a>
             <a mat-raised-button color="accent" routerLink="/auth/register" class="register-btn">
                 <mat-icon>person_add</mat-icon>
-                Sign Up
+                <span>Sign Up</span>
             </a>
             } @else {
-            <button mat-button routerLink="/dashboard">
-          <mat-icon>dashboard</mat-icon>
-          Dashboard
-        </button>
-            <button mat-icon-button [matMenuTriggerFor]="menu">
-          <mat-icon>account_circle</mat-icon>
-        </button>
+            <button mat-button routerLink="/dashboard" class="dashboard-btn">
+                <mat-icon>dashboard</mat-icon>
+                <span>Dashboard</span>
+            </button>
+            <button mat-icon-button [matMenuTriggerFor]="menu" class="profile-btn">
+                <mat-icon>account_circle</mat-icon>
+            </button>
             <mat-menu #menu="matMenu">
                 <button mat-menu-item routerLink="/profile">
-            <mat-icon>person</mat-icon>
-            <span>My Profile</span>
-          </button>
+                    <mat-icon>person</mat-icon>
+                    <span>My Profile</span>
+                </button>
                 <button mat-menu-item routerLink="/dashboard">
-            <mat-icon>dashboard</mat-icon>
-            <span>Dashboard</span>
-          </button>
+                    <mat-icon>dashboard</mat-icon>
+                    <span>Dashboard</span>
+                </button>
+                <div style="height: 1px; background: rgba(0,0,0,0.12); margin: 8px 0;"></div>
                 <button mat-menu-item (click)="logout()">
-            <mat-icon>logout</mat-icon>
-            <span>Logout</span>
-          </button>
+                    <mat-icon>logout</mat-icon>
+                    <span>Logout</span>
+                </button>
             </mat-menu>
             }
         </div>
     </div>
+
+    <!-- Mobile Sidebar Menu -->
+    <div class="mobile-sidebar" [class.open]="mobileMenuOpen">
+        <div class="mobile-menu-content">
+            <!-- Mobile Navigation Links -->
+            <nav class="mobile-nav-links">
+                <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileMenu()">
+                    <mat-icon>home</mat-icon>
+                    <span>Home</span>
+                </a>
+                <a mat-button routerLink="/courses" routerLinkActive="active" (click)="closeMobileMenu()">
+                    <mat-icon>library_books</mat-icon>
+                    <span>Courses</span>
+                </a>
+                <a mat-button routerLink="/instructors" routerLinkActive="active" (click)="closeMobileMenu()">
+                    <mat-icon>people</mat-icon>
+                    <span>Instructors</span>
+                </a>
+                <a mat-button routerLink="/about" (click)="closeMobileMenu()">
+                    <mat-icon>info</mat-icon>
+                    <span>About</span>
+                </a>
+                <a mat-button routerLink="/contact" (click)="closeMobileMenu()">
+                    <mat-icon>email</mat-icon>
+                    <span>Contact</span>
+                </a>
+                
+                @if (isLoggedIn()) {
+                <div style="height: 1px; background: rgba(255,255,255,0.2); margin: 12px 0;"></div>
+                <a mat-button routerLink="/dashboard" (click)="closeMobileMenu()">
+                    <mat-icon>dashboard</mat-icon>
+                    <span>Dashboard</span>
+                </a>
+                <a mat-button routerLink="/profile" (click)="closeMobileMenu()">
+                    <mat-icon>person</mat-icon>
+                    <span>My Profile</span>
+                </a>
+                }
+            </nav>
+
+            <!-- Mobile Actions -->
+            <div class="mobile-actions">
+                @if (!isLoggedIn()) {
+                <a mat-stroked-button routerLink="/auth/login" (click)="closeMobileMenu()" class="mobile-login-btn">
+                    <mat-icon>login</mat-icon>
+                    <span>Login</span>
+                </a>
+                <a mat-raised-button color="accent" routerLink="/auth/register" (click)="closeMobileMenu()" class="mobile-register-btn">
+                    <mat-icon>person_add</mat-icon>
+                    <span>Sign Up</span>
+                </a>
+                } @else {
+                <button mat-stroked-button (click)="logout(); closeMobileMenu()" class="mobile-logout-btn">
+                    <mat-icon>logout</mat-icon>
+                    <span>Logout</span>
+                </button> }
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay for mobile menu -->
+    <div class="mobile-overlay" [class.open]="mobileMenuOpen" (click)="closeMobileMenu()"></div>
 </mat-toolbar>
