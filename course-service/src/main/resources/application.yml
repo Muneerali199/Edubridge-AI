@@ -1,0 +1,60 @@
+server:
+  port: 8082
+  servlet:
+    context-path: /api/courses
+
+spring:
+  application:
+    name: course-service
+  
+  datasource:
+    url: jdbc:postgresql://localhost:5432/edubridge_courses
+    username: edubridge
+    password: edubridge123
+    driver-class-name: org.postgresql.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+# Google Cloud Configuration (for voice services)
+google:
+  cloud:
+    project-id: ${GOOGLE_CLOUD_PROJECT_ID:edubridge-ai}
+    credentials:
+      location: ${GOOGLE_APPLICATION_CREDENTIALS:}
+  
+  tts:
+    enabled: ${TTS_ENABLED:false}
+    default-voice: en-US-Neural2-A
+    audio-format: MP3
+  
+  stt:
+    enabled: ${STT_ENABLED:false}
+    model: latest_long
+
+# File Storage
+storage:
+  type: ${STORAGE_TYPE:local} # local, s3, gcs
+  base-url: ${STORAGE_BASE_URL:http://localhost:8082/files}
+  local:
+    directory: ${user.home}/edubridge/uploads
+  s3:
+    bucket: ${S3_BUCKET:edubridge-content}
+    region: ${AWS_REGION:us-east-1}
+
+logging:
+  level:
+    com.edubridge: DEBUG
+    org.springframework.web: INFO
+    org.hibernate: WARN

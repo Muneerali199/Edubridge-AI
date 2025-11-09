@@ -1,0 +1,58 @@
+<mat-toolbar class="navbar" color="primary">
+    <div class="navbar-container">
+        <!-- Logo & Brand -->
+        <div class="brand" routerLink="/">
+            <mat-icon class="brand-icon">school</mat-icon>
+            <span class="brand-name">EduBridge</span>
+            <span class="brand-tag">AI Learning</span>
+        </div>
+
+        <!-- Navigation Links -->
+        <nav class="nav-links">
+            <a mat-button routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                <mat-icon>home</mat-icon>
+                Home
+            </a>
+            <a mat-button routerLink="/courses" routerLinkActive="active">
+                <mat-icon>library_books</mat-icon>
+                Courses
+            </a>
+            <a mat-button routerLink="/instructors" routerLinkActive="active">
+                <mat-icon>people</mat-icon>
+                Instructors
+            </a>
+        </nav>
+
+        <!-- Actions -->
+        <div class="actions">
+            @if (!isLoggedIn()) {
+            <a mat-button routerLink="/auth/login">
+                <mat-icon>login</mat-icon>
+                Login
+            </a>
+            <a mat-raised-button color="accent" routerLink="/auth/register" class="register-btn">
+                <mat-icon>person_add</mat-icon>
+                Sign Up
+            </a>
+            } @else {
+            <button mat-button routerLink="/dashboard">
+          <mat-icon>dashboard</mat-icon>
+          Dashboard
+        </button>
+            <button mat-icon-button [matMenuTriggerFor]="menu">
+          <mat-icon>account_circle</mat-icon>
+        </button>
+            <mat-menu #menu="matMenu">
+                <button mat-menu-item routerLink="/dashboard">
+            <mat-icon>dashboard</mat-icon>
+            <span>Dashboard</span>
+          </button>
+                <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Logout</span>
+          </button>
+            </mat-menu>
+            }
+        </div>
+    </div>
+</mat-toolbar>

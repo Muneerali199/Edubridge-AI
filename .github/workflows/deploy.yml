@@ -1,0 +1,223 @@
+name: Deploy to AWS
+
+on:
+  push:
+    branches: [ main, staging ]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+  
+jobs:
+  # Build and test backend
+  build-backend:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+      
+      - name: Build with Maven
+        run: mvn clean package -DskipTests
+      
+      - name: Run tests
+        run: mvn test
+      
+      - name: Upload auth-service JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: auth-service
+          path: auth-service/target/*.jar
+      
+      - name: Upload course-service JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: course-service
+          path: course-service/target/*.jar
+
+  # Build and test frontend
+  build-frontend:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: edubridge-frontend/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: ./edubridge-frontend
+        run: npm ci --legacy-peer-deps
+      
+      - name: Build Angular app
+        working-directory: ./edubridge-frontend
+        run: npm run build
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: edubridge-frontend/dist/
+
+  # Deploy backend to AWS
+  deploy-backend:
+    needs: build-backend
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    strategy:
+      matrix:
+        service: [auth-service, course-service]
+        include:
+          - service: auth-service
+            port: 8081
+          - service: course-service
+            port: 8082
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.service }}
+          path: ${{ matrix.service }}/target/
+      
+      - name: Build Docker image
+        working-directory: ./${{ matrix.service }}
+        run: |
+          docker build -t ${{ matrix.service }}:${{ github.sha }} .
+          docker tag ${{ matrix.service }}:${{ github.sha }} ${{ env.ECR_REGISTRY }}/${{ matrix.service }}:latest
+          docker tag ${{ matrix.service }}:${{ github.sha }} ${{ env.ECR_REGISTRY }}/${{ matrix.service }}:${{ github.sha }}
+      
+      - name: Push to ECR
+        run: |
+          docker push ${{ env.ECR_REGISTRY }}/${{ matrix.service }}:latest
+          docker push ${{ env.ECR_REGISTRY }}/${{ matrix.service }}:${{ github.sha }}
+      
+      - name: Deploy to ECS
+        run: |
+          # Update ECS service with new image
+          aws ecs update-service \
+            --cluster edubridge-cluster \
+            --service ${{ matrix.service }} \
+            --force-new-deployment \
+            --region ${{ env.AWS_REGION }}
+
+  # Deploy frontend to S3 and CloudFront
+  deploy-frontend:
+    needs: build-frontend
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: dist/
+      
+      - name: Deploy to S3
+        run: |
+          aws s3 sync dist/edubridge-frontend/browser/ s3://edubridge-frontend-prod/ \
+            --delete \
+            --cache-control "max-age=31536000" \
+            --exclude "index.html"
+          
+          aws s3 cp dist/edubridge-frontend/browser/index.html s3://edubridge-frontend-prod/ \
+            --cache-control "no-cache, no-store, must-revalidate"
+      
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
+
+  # Database migrations
+  migrate-database:
+    needs: deploy-backend
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      
+      - name: Get database credentials from Secrets Manager
+        id: get-secret
+        run: |
+          SECRET=$(aws secretsmanager get-secret-value \
+            --secret-id edubridge-db-credentials-prod \
+            --query SecretString \
+            --output text)
+          echo "DB_ENDPOINT=$(echo $SECRET | jq -r .endpoint)" >> $GITHUB_OUTPUT
+          echo "DB_PASSWORD=$(echo $SECRET | jq -r .password)" >> $GITHUB_OUTPUT
+      
+      - name: Run Flyway migrations
+        working-directory: ./auth-service
+        run: |
+          mvn flyway:migrate \
+            -Dflyway.url=jdbc:postgresql://${{ steps.get-secret.outputs.DB_ENDPOINT }}:5432/edubridge \
+            -Dflyway.user=edubridge_admin \
+            -Dflyway.password=${{ steps.get-secret.outputs.DB_PASSWORD }}
+
+  # Notify on completion
+  notify:
+    needs: [deploy-backend, deploy-frontend, migrate-database]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+      - name: Send notification
+        run: |
+          echo "Deployment completed!"
+          echo "Frontend: https://edubridge.com"
+          echo "API: https://api.edubridge.com"

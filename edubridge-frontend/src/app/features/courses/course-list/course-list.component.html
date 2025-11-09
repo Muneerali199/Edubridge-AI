@@ -1,0 +1,202 @@
+<div class="course-list-container">
+    <!-- Hero Header with AI Tutor -->
+    <div class="hero-header">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <mat-icon class="hero-icon">school</mat-icon>
+                Explore Courses with AI
+            </h1>
+            <p class="hero-subtitle">Discover personalized learning experiences powered by AI tutor</p>
+
+            <div class="search-section">
+                <mat-form-field appearance="outline" class="search-field">
+                    <mat-label>Search courses...</mat-label>
+                    <input matInput [(ngModel)]="searchQuery" (keyup.enter)="searchCourses()" placeholder="Java, Python, AI, Web Development...">
+                    <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+                <button mat-fab extended color="primary" (click)="searchCourses()" class="search-btn">
+                    <mat-icon>search</mat-icon>
+                    Search
+                </button>
+            </div>
+
+            <!-- Quick Filters -->
+            <div class="quick-filters">
+                <mat-chip-listbox>
+                    <mat-chip-option (click)="filterByLevel('BEGINNER')">
+                        <mat-icon>school</mat-icon>
+                        Beginner
+                    </mat-chip-option>
+                    <mat-chip-option (click)="filterByLevel('INTERMEDIATE')">
+                        <mat-icon>trending_up</mat-icon>
+                        Intermediate
+                    </mat-chip-option>
+                    <mat-chip-option (click)="filterByLevel('ADVANCED')">
+                        <mat-icon>emoji_events</mat-icon>
+                        Advanced
+                    </mat-chip-option>
+                    <mat-chip-option (click)="filterByLevel('ALL')">
+                        <mat-icon>grid_view</mat-icon>
+                        All Levels
+                    </mat-chip-option>
+                </mat-chip-listbox>
+            </div>
+        </div>
+
+        <!-- AI Tutor Quick Access -->
+        <div class="ai-tutor-badge" (click)="toggleAITutor()">
+            <div class="ai-tutor-icon">
+                <mat-icon>psychology</mat-icon>
+                <div class="pulse-dot"></div>
+            </div>
+            <div class="ai-tutor-text">
+                <strong>AI Tutor</strong>
+                <span>Ask me anything!</span>
+            </div>
+        </div>
+    </div>
+
+    @if (loading()) {
+    <div class="loading-container">
+        <mat-spinner diameter="50"></mat-spinner>
+        <p>Loading amazing courses...</p>
+    </div>
+    } @else {
+    <div class="courses-grid">
+        @for (course of courses(); track course.id) {
+        <mat-card class="course-card" >
+            @if (false) {
+            <div class="featured-badge">
+                <mat-icon>star</mat-icon>
+                <span>Featured</span>
+            </div>
+            }
+
+            <div class="course-image">
+                @if (course.thumbnailUrl) {
+                <img [src]="course.thumbnailUrl" [alt]="course.title"> } @else {
+                <div class="placeholder-image">
+                    <mat-icon>{{ getCourseIcon("Programming") }}</mat-icon>
+                    <div class="category-badge">{{ "Programming" }}</div>
+                </div>
+                } @if (course.voiceEnabled) {
+                <div class="voice-badge">
+                    <mat-icon>record_voice_over</mat-icon>
+                </div>
+                }
+            </div>
+
+            <mat-card-header>
+                <mat-card-title class="course-title">{{ course.title }}</mat-card-title>
+                <mat-card-subtitle class="course-instructor">
+                    <mat-icon>person</mat-icon>
+                    {{ course.instructorName }}
+                </mat-card-subtitle>
+            </mat-card-header>
+
+            <mat-card-content>
+                <p class="description">{{ course.description | slice:0:140 }}...</p>
+
+                <div class="course-stats">
+                    <div class="stat">
+                        <mat-icon class="stat-icon star">star</mat-icon>
+                        <span><strong>{{ course.averageRating || 0 }}</strong></span>
+                        <span class="stat-label">({{ course.totalReviews || 0 }})</span>
+                    </div>
+                    <div class="stat">
+                        <mat-icon class="stat-icon">people</mat-icon>
+                        <span><strong>{{ formatNumber(course.totalEnrollments || 0) }}</strong></span>
+                        <span class="stat-label">students</span>
+                    </div>
+                    <div class="stat">
+                        <mat-icon class="stat-icon">schedule</mat-icon>
+                        <span><strong>{{ course.durationHours || 0 }}h</strong></span>
+                    </div>
+                </div>
+
+                <div class="tags">
+                    <mat-chip-set>
+                        <mat-chip [highlighted]="true" [class]="'level-' + course.level.toLowerCase()">
+                            <mat-icon>{{ getLevelIcon(course.level) }}</mat-icon>
+                            {{ course.level }}
+                        </mat-chip>
+                        @for (tag of course.tags.slice(0, 3); track tag) {
+                        <mat-chip class="tag-chip">{{ tag }}</mat-chip>
+                        }
+                    </mat-chip-set>
+                </div>
+
+                @if (course.price !== undefined && course.price !== null) {
+                <div class="pricing">
+                    @if (course.discountPrice && course.discountPrice
+                    < course.price) { <div class="discount-pricing">
+                        <span class="original-price">{{ formatPrice(course.price) }}</span>
+                        <span class="discount-price">{{ formatPrice(course.discountPrice) }}</span>
+                        <span class="discount-badge">-{{ getDiscountPercent(course.price, course.discountPrice) }}%</span>
+                </div>
+                } @else {
+                <span class="current-price">{{ formatPrice(course.price) }}</span> }
+    </div>
+    } @else {
+    <div class="pricing">
+        <span class="free-badge">
+                        <mat-icon>workspace_premium</mat-icon>
+                        FREE
+                    </span>
+    </div>
+    }
+    </mat-card-content>
+
+    <mat-card-actions class="card-actions">
+        <button mat-raised-button color="primary" [routerLink]="['/courses', course.id]" class="view-btn">
+                    <mat-icon>visibility</mat-icon>
+                    View Course
+                </button>
+
+        <div class="action-icons">
+            @if (voiceEnabled() && course.voiceEnabled) {
+            <button mat-icon-button (click)="speakCourseDescription(course)" matTooltip="Listen to description" class="icon-btn">
+                        <mat-icon>volume_up</mat-icon>
+                    </button> }
+            <button mat-icon-button matTooltip="Ask AI about this course" (click)="askAIAboutCourse(course)" class="icon-btn">
+                        <mat-icon>psychology</mat-icon>
+                    </button>
+        </div>
+    </mat-card-actions>
+    </mat-card>
+    } @empty {
+    <div class="empty-state">
+        <div class="empty-icon">
+            <mat-icon>search_off</mat-icon>
+        </div>
+        <h3>No courses found</h3>
+        <p>Try adjusting your search or browse all courses</p>
+        <button mat-raised-button color="primary" (click)="loadCourses()">
+                <mat-icon>refresh</mat-icon>
+                Browse All Courses
+            </button>
+    </div>
+    }
+</div>
+}
+
+<!-- AI Tutor Panel (Slide-in) -->
+@if (showAITutor()) {
+<div class="ai-tutor-panel">
+    <div class="ai-tutor-header">
+        <h3>
+            <mat-icon>psychology</mat-icon>
+            AI Course Assistant
+        </h3>
+        <button mat-icon-button (click)="toggleAITutor()">
+                <mat-icon>close</mat-icon>
+            </button>
+    </div>
+    <div class="ai-tutor-content">
+        <app-ai-tutor-chat></app-ai-tutor-chat>
+    </div>
+</div>
+<div class="ai-tutor-backdrop" (click)="toggleAITutor()"></div>
+}
+</div>
+

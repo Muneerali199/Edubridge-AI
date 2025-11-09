@@ -1,0 +1,85 @@
+.register-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+}
+
+.register-card {
+    width: 100%;
+    max-width: 550px;
+    padding: 20px;
+}
+
+mat-card-header {
+    margin-bottom: 24px;
+    mat-card-title {
+        font-size: 28px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+    mat-card-subtitle {
+        font-size: 16px;
+        color: #666;
+    }
+}
+
+.name-row {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+}
+
+.half-width {
+    flex: 1;
+    margin-bottom: 16px;
+}
+
+.full-width {
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.submit-button {
+    height: 48px;
+    font-size: 16px;
+    font-weight: 500;
+    margin-top: 8px;
+    mat-spinner {
+        display: inline-block;
+        margin: 0 auto;
+    }
+}
+
+.register-footer {
+    margin-top: 24px;
+    text-align: center;
+    p {
+        color: #666;
+        font-size: 14px;
+        a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+}
+
+mat-form-field {
+    mat-icon {
+        color: rgba(0, 0, 0, 0.54);
+    }
+}
+
+@media (max-width: 600px) {
+    .name-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}

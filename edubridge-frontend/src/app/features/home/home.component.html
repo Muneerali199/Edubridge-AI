@@ -1,0 +1,101 @@
+<div class="home-container">
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                <span class="gradient-text">Transform Your Learning</span>
+                <br> with AI-Powered Education
+            </h1>
+            <p class="hero-subtitle">
+                Experience the future of online learning with personalized AI tutoring, voice integration, and expert instructors - all in one platform
+            </p>
+            <div class="hero-actions">
+                <a mat-raised-button color="primary" routerLink="/courses" class="cta-primary">
+                    <mat-icon>explore</mat-icon>
+                    Explore Courses
+                </a>
+                <a mat-raised-button routerLink="/auth/register" class="cta-secondary">
+                    <mat-icon>rocket_launch</mat-icon>
+                    Get Started Free
+                </a>
+            </div>
+            <div class="hero-features">
+                <div class="feature-badge">
+                    <mat-icon>psychology</mat-icon>
+                    <span>AI Tutor</span>
+                </div>
+                <div class="feature-badge">
+                    <mat-icon>mic</mat-icon>
+                    <span>Voice Learning</span>
+                </div>
+                <div class="feature-badge">
+                    <mat-icon>verified</mat-icon>
+                    <span>Certified</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="visual-card card-1">
+                <mat-icon>school</mat-icon>
+                <span>Learn</span>
+            </div>
+            <div class="visual-card card-2">
+                <mat-icon>psychology</mat-icon>
+                <span>AI Assist</span>
+            </div>
+            <div class="visual-card card-3">
+                <mat-icon>emoji_events</mat-icon>
+                <span>Achieve</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="stats-container">
+            @for (stat of stats; track stat.label) {
+            <div class="stat-item">
+                <div class="stat-value">{{ stat.value }}</div>
+                <div class="stat-label">{{ stat.label }}</div>
+            </div>
+            }
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="section-header">
+            <h2>Why Choose EduBridge?</h2>
+            <p>Cutting-edge technology meets expert education</p>
+        </div>
+        <div class="features-grid">
+            @for (feature of features; track feature.title) {
+            <mat-card class="feature-card">
+                <div class="feature-icon">
+                    <mat-icon>{{ feature.icon }}</mat-icon>
+                </div>
+                <h3>{{ feature.title }}</h3>
+                <p>{{ feature.description }}</p>
+            </mat-card>
+            }
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-content">
+            <h2>Ready to Start Learning?</h2>
+            <p>Join thousands of students already transforming their careers</p>
+            <div class="cta-buttons">
+                <a mat-raised-button color="primary" routerLink="/courses" class="btn-large">
+                    <mat-icon>explore</mat-icon>
+                    Browse Courses
+                </a>
+                <a mat-stroked-button routerLink="/instructors" class="btn-large">
+                    <mat-icon>people</mat-icon>
+                    Meet Instructors
+                </a>
+            </div>
+        </div>
+    </section>
+</div>

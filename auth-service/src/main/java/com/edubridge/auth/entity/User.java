@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users", schema = "auth")
+@Table(name = "users")
 @Data
 @Builder
 @NoArgsConstructor

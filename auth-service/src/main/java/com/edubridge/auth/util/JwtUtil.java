@@ -41,11 +41,11 @@ public class JwtUtil {
         claims.put("role", role);
         
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(email)
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .claims(claims)
+                .subject(email)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(secretKey)
                 .compact();
     }
     
@@ -54,12 +54,12 @@ public class JwtUtil {
      */
     public String generateRefreshToken(UUID userId, String email) {
         return Jwts.builder()
-                .setSubject(email)
+                .subject(email)
                 .claim("userId", userId.toString())
                 .claim("tokenType", "refresh")
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + refreshExpiration))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + refreshExpiration))
+                .signWith(secretKey)
                 .compact();
     }
     
@@ -89,11 +89,11 @@ public class JwtUtil {
      * Extract all claims from token
      */
     private Claims extractClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(secretKey)
+        return Jwts.parser()
+                .verifyWith(secretKey)
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
     
     /**
@@ -128,10 +128,10 @@ public class JwtUtil {
      */
     public boolean isValidTokenStructure(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(secretKey)
+            Jwts.parser()
+                    .verifyWith(secretKey)
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             log.error("Invalid JWT structure: {}", e.getMessage());

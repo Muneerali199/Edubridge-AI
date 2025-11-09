@@ -1,0 +1,150 @@
+.navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.navbar-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 16px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    &:hover {
+        transform: scale(1.05);
+    }
+    .brand-icon {
+        font-size: 32px;
+        width: 32px;
+        height: 32px;
+        color: white;
+    }
+    .brand-name {
+        font-size: 24px;
+        font-weight: 700;
+        color: white;
+        letter-spacing: -0.5px;
+    }
+    .brand-tag {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.2);
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-weight: 500;
+    }
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    justify-content: center;
+    a {
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s ease;
+        mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+        }
+        &:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+        }
+        &.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: 600;
+        }
+    }
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    button,
+    a {
+        color: white;
+        mat-icon {
+            font-size: 20px;
+            width: 20px;
+            height: 20px;
+        }
+    }
+    .register-btn {
+        background: white;
+        color: #667eea;
+        font-weight: 600;
+        &:hover {
+            background: rgba(255, 255, 255, 0.9);
+        }
+    }
+}
+
+
+/* Mobile Responsive */
+
+@media (max-width: 768px) {
+    .navbar-container {
+        padding: 0 8px;
+    }
+    .brand {
+        gap: 8px;
+        .brand-icon {
+            font-size: 28px;
+            width: 28px;
+            height: 28px;
+        }
+        .brand-name {
+            font-size: 20px;
+        }
+        .brand-tag {
+            display: none;
+        }
+    }
+    .nav-links {
+        gap: 4px;
+        a {
+            padding: 0 8px;
+            font-size: 14px;
+            mat-icon {
+                font-size: 18px;
+                width: 18px;
+                height: 18px;
+            }
+            span {
+                display: none;
+            }
+        }
+    }
+    .actions {
+        gap: 4px;
+        button,
+        a {
+            font-size: 14px;
+            padding: 0 8px;
+            span {
+                display: none;
+            }
+        }
+    }
+}
