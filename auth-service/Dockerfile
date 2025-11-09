@@ -3,16 +3,16 @@ FROM maven:3.9-eclipse-temurin-17-alpine AS build
 
 WORKDIR /workspace
 
-# Copy parent pom and common module
+# Copy parent pom
 COPY pom.xml ./
+
+# Copy all modules (common, auth-service, course-service)
 COPY common ./common
+COPY auth-service ./auth-service
+COPY course-service ./course-service
 
-# Copy auth service
-COPY auth-service/pom.xml ./auth-service/
-COPY auth-service/src ./auth-service/src
-
-# Build the application
-RUN mvn -f auth-service/pom.xml clean package -DskipTests
+# Build the entire parent project (this builds common first, then all services)
+RUN mvn clean package -DskipTests -pl auth-service -am
 
 # Runtime stage
 FROM eclipse-temurin:17-jre-alpine
